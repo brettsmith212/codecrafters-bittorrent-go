@@ -31,8 +31,23 @@ func decodeBencode(bencodedString string) (interface{}, error) {
 		}
 
 		return bencodedString[firstColonIndex+1 : firstColonIndex+1+length], nil
+	} else if bencodedString[0] == 'i' {
+		var letterEIndex int
+		for i := 0; i < len(bencodedString); i++ {
+			if bencodedString[i] == 'e' {
+				letterEIndex = i
+				break
+			}
+		}
+
+    digit, err := strconv.Atoi(bencodedString[1:letterEIndex])
+    if err != nil {
+      return "", nil
+    }
+    
+		return digit, nil
 	} else {
-		return "", fmt.Errorf("Only strings are supported at the moment")
+		return "", fmt.Errorf("Only strings and ints are supported at the moment")
 	}
 }
 
@@ -41,13 +56,13 @@ func main() {
 
 	if command == "decode" {
 		bencodedValue := os.Args[2]
-		
+
 		decoded, err := decodeBencode(bencodedValue)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		
+
 		jsonOutput, _ := json.Marshal(decoded)
 		fmt.Println(string(jsonOutput))
 	} else {
